@@ -22,12 +22,14 @@
             <option value="comedy">Comedy</option>
         </select>
         <button type="submit">Add expense</button>
+        <input type="button" id="editBtnSub" value="Edit and submit">
         <ul id="list"></ul>
+
     </form>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
     <script>
-        const apiUrl = "https://crudcrud.com/api/ce2759004bce43919735f46e1a02f2e7/appointmentdata";
+        const apiUrl = "https://crudcrud.com/api/1c0c0241da574f9d8aedd738db57fd8f/appointmentdata";
         const list = document.getElementById('list');
 
         // Display expenses on page load
@@ -97,8 +99,19 @@
                 document.getElementById('expense_amount').value = object.expense_amount;
                 document.getElementById("description").value = object.description;
                 document.getElementById('category').value = object.category;
+                const updatedObject = {
+                    expense_amount: document.getElementById('expense_amount').value = object.expense_amount,
+                    description: document.getElementById("description").value = object.description,
+                    category: document.getElementById('category').value = object.category,
+                }
+                axios
+                    .put(apiUrl + "/" + `${object._id}`)
+                    .then((res) => {
+                        console.log(res);
+                    })
             };
             return editBtn;
+
         }
     </script>
 </body>
