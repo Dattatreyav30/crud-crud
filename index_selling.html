@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <form action="">
+        <label for="selling price">Selling price</label>
+        <input type="text" name="selling price" id="price">
+        <label for="product name">product name</label>
+        <input type="text" name="product name" id="product">
+        <label for="category">choose a category</label>
+        <select name="category" id="category">
+            <option value="option1">food</option>
+            <option value="option2">skincare</option>
+            <option value="option3">electronic items</option>
+        </select>
+        <button type="submit">submit</button>
+        <h1>products</h1>
+        <h2>skincare products</h2>
+        <ul id="skin"></ul>
+        <h2>food products</h2>
+        <ul id="food"></ul>
+        <h2>electronic products</h2>
+        <ul id="electronic"></ul>
+    </form>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
+    <script>
+        const apiUrl = "https://crudcrud.com/api/07997add6d234c87a5bfab19cbe4f4fd/data"
+        const SkinList = document.getElementById('skin');
+        const foddList = document.getElementById('food');
+
+        const electronicList = document.getElementById('electronic');
+
+        window.addEventListener('DOMContentLoaded', async e => {
+            try {
+                const response = await axios.get(apiUrl);
+                response.data.forEach(addData)
+            } catch (error) {
+                console.error(error);
+            }
+
+        })
+
+        const form = document.querySelector('form');
+        form.addEventListener('submit', async e => {
+            e.preventDefault()
+            const object = {
+                selling_price: document.getElementById('price').value,
+                prduct_name: document.getElementById('product').value,
+                category: document.getElementById('category').value
+            }
+            try {
+                const response = await axios
+                    .post(apiUrl, object);
+                addData(response.data)
+            } catch (err) {
+                console.error(err);
+            }
+        })
+        function addData(object) {
+            if (object.category === 'option1') {
+                const objectString = JSON.stringify(object)
+                let ul = document.getElementById('food');
+                let li = document.createElement('li');
+                li.appendChild(document.createTextNode(objectString));
+                li.appendChild(deleteData(li, object._id, ul));
+                ul.appendChild(li);
+            }
+            if (object.category === 'option2') {
+                const objectString = JSON.stringify(object)
+                let ul = document.getElementById('skin');
+                let li = document.createElement('li');
+                li.appendChild(document.createTextNode(objectString));
+                li.appendChild(deleteData(li, object._id, ul));
+                ul.appendChild(li);
+            }
+            if (object.category === 'option3') {
+                const objectString = JSON.stringify(object)
+                let ul = document.getElementById('electronic');
+                let li = document.createElement('li');
+                li.appendChild(document.createTextNode(objectString));
+                li.appendChild(deleteData(li, object._id, ul));
+                ul.appendChild(li);
+            }
+
+        }
+
+        function deleteData(li, id, ul) {
+            const deleteBtn = document.createElement("input");
+            deleteBtn.type = 'button';
+            deleteBtn.value = 'delete';
+            deleteBtn.onclick = async () => {
+                ul.removeChild(li);
+                await axios
+                    .delete(apiUrl + `/${id}`)
+                    .then((res) => {
+                        console.log(res);
+                    })
+                    .catch((err) => {
+                        console.error(error);
+                    })
+            }
+            return deleteBtn;
+        };
+    </script>
+
+</body>
+
+</html>
