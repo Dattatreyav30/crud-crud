@@ -69,7 +69,7 @@
     <div class="container">
       <div class="row  justify-content-center">
         <div class="col-lg-6 col-md-8 col-sm-10">
-          <form action="/submit-form" method="post">
+          <form action="" method="post">
             <h3 class="mb-2">Book a Call</h3>
             <p><small>Fill in your details below and our representative will call you back within 10 minutes of your
                 selected
@@ -81,15 +81,15 @@
             </div>
             <div class="mb-2">
               <label for="email" class="form-label">Email:</label>
-              <input type="email" class="form-control" id="email" placeholder="Enter your email">
+              <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
             </div>
             <div class="mb-2">
               <label for="phone" class="form-label">Phone:</label>
-              <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number">
+              <input type="tel" class="form-control" id="phone" placeholder="Enter your phone number" required>
             </div>
             <div class="mb-3">
               <label for="time" class="form-label">Time:</label>
-              <input type="datetime-local" class="form-control" name="time" id="time">
+              <input type="datetime-local" class="form-control" name="time" id="time" required>
             </div>
             <div class="text-center">
               <button type="submit" class="btn btn-warning w-100">Submit</button>
@@ -107,19 +107,6 @@
   </html>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.3.4/axios.min.js"></script>
   <script>
-    const apiUrl = "https://crudcrud.com/api/07b62b0b7cc34437ab1d14a3ad59d17f/appointmentData";
-
-    window.addEventListener('DOMContentLoaded', async e => {
-      e.preventDefault()
-      try {
-        const response = await axios.get(apiUrl);
-        response.data.forEach(data => {
-          addDatatoBackend(data)
-        });
-      } catch (err) {
-        console.error(err);
-      }
-    })
     const form = document.querySelector('form')
     form.addEventListener('submit', async e => {
       e.preventDefault();
@@ -129,37 +116,33 @@
         ph_no: document.getElementById('phone').value,
         time: document.getElementById('time').value
       }
-      let stringifiedObject = JSON.stringify(createObject);
       try {
-        const response = await axios.post(apiUrl, createObject);
-        console.log("post created")
+        let stringifiedObject = JSON.stringify(createObject);
+        const response = await axios.post("http://localhost:3000/submit-form", createObject);
+        console.log("post created");
+        location.reload();
       } catch (err) {
         console.error(err);
       }
-      location.reload();
+    })
+
+    window.addEventListener('DOMContentLoaded', async e => {
+      e.preventDefault();
+      const response = await axios.get("http://localhost:3000/get-all");
+      const dataList = response.data;
+      dataList.forEach(data => {
+        addDatatoBackend(data)
+      });
     })
 
     function addDatatoBackend(data) {
-      const ul = document.getElementById('list');
-      const li = document.createElement('li');
-      li.className = 'list-group-item list-group-item-warning'
-      const sterilzedName = JSON.stringify(data.name);
-      const sterilzedEmail = JSON.stringify(data.email);
-      const sterilzedPhone = JSON.stringify(data.ph_no);
-      const sterilzedTime = JSON.stringify(data.time);
-      li.appendChild(document.createTextNode(sterilzedName));
-      li.appendChild(document.createElement("br"));
-      li.appendChild(document.createTextNode(sterilzedEmail));
-      li.appendChild(document.createElement("br"));
-      li.appendChild(document.createTextNode(sterilzedPhone));
-      li.appendChild(document.createElement("br"));
-      li.appendChild(document.createTextNode(sterilzedTime));
-      li.appendChild(document.createElement("br"));
-      li.appendChild(document.createElement("br"));
-      li.appendChild(deleteData(li, data._id, ul));
-      li.appendChild(editData(data, li, data._id, ul));
+      const ul = document.getElementById("list");
+      const li = document.createElement("li");
+      ul.className = 'list-group'
+      li.className = 'list-group-item list-group-item-light '
+      li.innerHTML = `Name: ${data.name} <br> Email: ${data.email} <br> Phone: ${data.phone} <br> Time: ${data.time} <br>`;
+      li.appendChild(deleteData(li, data.id, ul))
       ul.appendChild(li);
-
     }
     function deleteData(li, id, ul) {
       let deleteBtn = document.createElement('input');
@@ -169,9 +152,10 @@
       deleteBtn.className = 'btn btn-danger me-3'
 
       deleteBtn.onclick = async () => {
-        ul.removeChild(li);
         try {
-          await axios.delete(apiUrl + "/" + id)
+          console.log(id);
+          await axios.delete(`http://localhost:3000/delete-user/${id}`)
+          ul.removeChild(li);
         } catch (err) {
           console.log(err);
         }
@@ -179,29 +163,29 @@
       return deleteBtn;
     }
 
-    function editData(data, li, id, ul) {
-      const editBtn = document.createElement('input');
-      editBtn.type = 'button';
-      editBtn.value = 'edit';
-      editBtn.id = 'edit';
-      editBtn.className = "btn btn-warning"
-      editBtn.onclick = async () => {
-        ul.removeChild(li)
-        const newData = {
-          name: document.getElementById('name').value = data.name,
-          email: document.getElementById('email').value = data.email,
-          ph_n0: document.getElementById('phone').value = data.ph_no,
-          time: document.getElementById('time').value = data.time,
-        }
+    // function editData(data, li, id, ul) {
+    //   const editBtn = document.createElement('input');
+    //   editBtn.type = 'button';
+    //   editBtn.value = 'edit';
+    //   editBtn.id = 'edit';
+    //   editBtn.className = "btn btn-warning"
+    //   editBtn.onclick = async () => {
+    //     ul.removeChild(li)
+    //     const newData = {
+    //       name: document.getElementById('name').value = data.name,
+    //       email: document.getElementById('email').value = data.email,
+    //       ph_n0: document.getElementById('phone').value = data.ph_no,
+    //       time: document.getElementById('time').value = data.time,
+    //     }
 
-        try {
-          await axios.delete(apiUrl + "/" + id)
-        } catch (err) {
-          console.error(err);
-        }
-      }
-      return editBtn
-    }
+    //     try {
+    //       await axios.delete(apiUrl + "/" + id)
+    //     } catch (err) {
+    //       console.error(err);
+    //     }
+    //   }
+    //   return editBtn
+    // }
 
   </script>
 </body>
